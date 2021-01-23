@@ -20,9 +20,15 @@ def Login():
 def Home():
     return render_template("Home/index.html")
 
-@app.route('/Register')
+@app.route('/Register', methods=['POST', 'GET'])
 def Register():
-    return render_template("Account/Register.html")
+    if request.method == 'POST':
+        return "Success"
+    else:
+        return render_template("Account/Register.html")
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

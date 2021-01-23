@@ -15,24 +15,24 @@ $(document).ready(() => {
             errorMessage.innerHTML = "Your password must contain at least one special character";
         } else {
             var body = JSON.stringify({
-                    email: email,
-                    password: password
-                })
-                // var xhr = new XMLHttpRequest();
-                // xhr.onreadystatechange = () => {
-                //     if (xhr.readyState === 4 && xhr.status === 401) {
-                //         errorMessage.innerHTML = xhr.response
-                //         form.email.value = ""
-                //         form.password.value = ""
-                //         forgot.innerHTML = "Forgot password?"
-                //     } else if (xhr.readyState === 4 && xhr.status === 200) {
-                //         window.location = xhr.response
-                //         console.log(xhr.response)
-                //     }
-                // }
-                // xhr.open("POST", "/", true);
-                // xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                // xhr.send(body);
+                email: email,
+                password: password
+            })
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = () => {
+                if (xhr.readyState === 4 && xhr.status === 401) {
+                    errorMessage.innerHTML = xhr.response
+                    form.email.value = ""
+                    form.password.value = ""
+                    forgot.innerHTML = "Forgot password?"
+                } else if (xhr.readyState === 4 && xhr.status === 200) {
+                    window.location = xhr.response
+                    console.log(xhr.response)
+                }
+            }
+            xhr.open("POST", "/", true);
+            xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+            xhr.send(body);
         }
         return;
     })

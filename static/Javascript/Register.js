@@ -6,9 +6,9 @@ $(document).ready(() => {
         var form = evt.target;
         var email = form.email.value
         var password = form.password.value
-        var confirmPassword = form.password_confirm
+        var confirmPassword = form.password_confirm.value
         var format = /^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
-        if (password.length < 8 || confirmPassword.length < 8) {
+        if (password.length < 8) {
             errorMessage.innerHTML = "Password less than 8 character";
         } else if (!checkUpperCase(password)) {
             errorMessage.innerHTML = "Your password must contain at least one capital letter";
@@ -23,16 +23,11 @@ $(document).ready(() => {
             })
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
-                if (xhr.readyState === 4 && xhr.status === 401) {
+                if (xhr.readyState === 4 && xhr.status === 200) {
                     errorMessage.innerHTML = xhr.response
-                    form.email.value = ""
-                    form.password.value = ""
-                } else if (xhr.readyState === 4 && xhr.status === 200) {
-                    window.location = xhr.response
-                    console.log(xhr.response)
                 }
             }
-            xhr.open("POST", "/", true);
+            xhr.open("POST", "/Register", true);
             xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
             xhr.send(body);
         }
