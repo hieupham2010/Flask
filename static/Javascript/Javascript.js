@@ -28,7 +28,6 @@ $(document).ready(() => {
                     forgot.innerHTML = "Forgot password?"
                 } else if (xhr.readyState === 4 && xhr.status === 200) {
                     window.location = xhr.response
-                    console.log(xhr.response)
                 }
             }
             xhr.open("POST", "/", true);
