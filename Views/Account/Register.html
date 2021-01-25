@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link rel="stylesheet" href="{{url_for('static' , filename='Stylesheet/LoginStyle.css')}}">
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Amatic+SC" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -13,7 +14,10 @@
 
 <body>
     <div class="container">
-        <div class="card-login">
+        <div id="message" style="text-align: center; color: red; font-size: 20px;margin-top: 4%; margin-bottom: 1%; visibility: hidden;">
+            Message
+        </div>
+        <div class="card-login" style="margin-top: 0%;">
             <div class="header">
                 <h2>Register</h2>
             </div>

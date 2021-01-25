@@ -1,17 +1,18 @@
 $(document).ready(() => {
     var loginForm = document.getElementById("form-login")
     var errorMessage = document.getElementById("errorMessage")
+    var forgot = document.getElementById("ForgotPassword")
     loginForm.addEventListener("submit", evt => {
         evt.preventDefault()
         var form = evt.target;
         var email = form.email.value
         var password = form.password.value
-        var format = /^[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
+        var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
         if (password.length < 8) {
             errorMessage.innerHTML = "Password less than 8 character";
         } else if (!checkUpperCase(password)) {
             errorMessage.innerHTML = "Your password must contain at least one capital letter";
-        } else if (password.match(format)) {
+        } else if (!format.test(password)) {
             errorMessage.innerHTML = "Your password must contain at least one special character";
         } else {
             var body = JSON.stringify({
@@ -20,7 +21,7 @@ $(document).ready(() => {
             })
             var xhr = new XMLHttpRequest();
             xhr.onreadystatechange = () => {
-                if (xhr.readyState === 4 && xhr.status === 401) {
+                if (xhr.readyState === 4 && xhr.status === 10) {
                     errorMessage.innerHTML = xhr.response
                     form.email.value = ""
                     form.password.value = ""
