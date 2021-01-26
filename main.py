@@ -1,9 +1,22 @@
 from flask import Flask, request, render_template, redirect, url_for, session,flash
 from markupsafe import escape
+from flask_mail import Mail, Message
+from config import configEmail
 import hashlib
 import connection as conn
 app = Flask(__name__, template_folder="Views")
 app.secret_key = b'HieuPham-518H0501'
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT'] = 465
+app.config['MAIL_USERNAME'] = configEmail["Username"]
+app.config['MAIL_PASSWORD'] = configEmail["Password"]
+app.config['MAIL_USE_TLS'] = False
+app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_DEFAULT_SENDER'] = 'Admin'
+mail = Mail(app)
+
+def initApp():
+    return app
 
 @app.route('/', methods=['POST', 'GET'])
 def Login():
@@ -58,6 +71,20 @@ def Register():
 def Logout():
     session.pop('email' , None)
     return redirect(url_for("Login"))
+
+
+
+
+def sendEmail(subject , recipients, token):
+    msg = Message(subject=subject , recipients=recipients)
+    msg.html = '''
+    <h1>Welcome</h1>
+    <p>You have requested to registration for SOA account. Please click link bellow to confirm</p>
+    <p>Link: </p>
+    '''
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
