@@ -2,6 +2,7 @@ import pymysql
 
 def executeQueryValNonData(query , val):
     try:
+        print(val)
         connection = pymysql.connect("localhost" , "root" , "" ,"soa-flask")
         cursor = connection.cursor()
         cursor.execute(query, val)

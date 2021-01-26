@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, redirect, url_for, session,fl
 from markupsafe import escape
 from flask_mail import Mail, Message
 from config import configEmail
+from time import time
 import hashlib
 import connection as conn
 app = Flask(__name__, template_folder="Views")
@@ -15,8 +16,6 @@ app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_DEFAULT_SENDER'] = 'Admin'
 mail = Mail(app)
 
-def initApp():
-    return app
 
 @app.route('/', methods=['POST', 'GET'])
 def Login():
@@ -55,17 +54,48 @@ def Register():
         info = conn.executeQueryData(query)
         email = data['email']
         password = hashlib.sha512(str.encode(data['password'])).hexdigest()
+        token = hashlib.sha512(str.encode(email + str(time()))).hexdigest()
+        departTime = int(time())
+        recipients = [email]
         for e in info:
             if email == e[0]:
                 return "Email already exists please use another email", 10
-        val = (email , password)
-        query = "INSERT INTO users(Email,Password) VALUES(%s , %s)"
+        val = (token, departTime, email, password)
+        query = "INSERT INTO verifyaccount(Token,DepartTime,Email,Password) VALUES(%s , %s, %s, %s)"
         if conn.executeQueryValNonData(query , val):
-            return "Thank you for sign up" , 200
+            sendEmail("Sign Up" , recipients , token)
+            return "Please check your email to complete registration" , 200
         else:
             return "Server error please try again", 200
     else:
         return render_template("Account/Register.html")
+
+@app.route('/ConfirmSignUp/<token>')
+def confirmSignUp(token):
+    val = (token)
+    query = "SELECT * FROM verifyaccount WHERE Token = %s"
+    info = conn.executeQueryValData(query, val)
+    if len(info) <= 0:
+        return "Not Found" , 404
+    currentTime = time()
+    departTime = info[0][2]
+    if currentTime - departTime > 600:
+        query = "DELETE FROM verifyaccount WHERE Token = %s"
+        conn.executeQueryValNonData(query , val)
+        return "<h1>Sorry email expired, please try again</h1>"
+    else:
+        query = "DELETE FROM verifyaccount WHERE Token = %s"
+        conn.executeQueryValNonData(query , val)
+        email = info[0][3]
+        password = info[0][4]
+        query = "INSERT INTO users(Email,Password) VALUES(%s,%s)"
+        val = (email , password)
+        if conn.executeQueryValNonData(query,val):
+            return '''
+            <h1>Thank you for sign up</h1>
+            <a href="http://127.0.0.1:5000/">Login</a>
+            '''
+    return "Server error please try again"
 
 @app.route('/Logout')
 def Logout():
@@ -77,11 +107,17 @@ def Logout():
 
 def sendEmail(subject , recipients, token):
     msg = Message(subject=subject , recipients=recipients)
-    msg.html = '''
+    host = "http://127.0.0.1:5000/ConfirmSignUp/{}"
+    link = host.format(token)
+    body = '''
     <h1>Welcome</h1>
     <p>You have requested to registration for SOA account. Please click link bellow to confirm</p>
-    <p>Link: </p>
+    <p>Link: {}</p>
+    <p style="color:red">* This email is valid only for 10 minutes</p>
+    <p>if it's not you, please ignore this email</p>
     '''
+    msg.html = body.format(link)
+    mail.send(msg)
 
 
 
