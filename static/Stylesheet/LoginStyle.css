@@ -34,6 +34,14 @@ footer {
     padding: 30px 35px 30px 35px;
 }
 
+.input input[type=text] {
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    border: 1px solid #cecece;
+    margin-bottom: 20px;
+}
+
 .input input[type=email] {
     padding: 10px;
     width: 100%;

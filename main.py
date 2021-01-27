@@ -3,6 +3,7 @@ from markupsafe import escape
 from flask_mail import Mail, Message
 from config import configEmail
 from time import time
+import random as rd
 import hashlib
 import connection as conn
 app = Flask(__name__, template_folder="Views")
@@ -97,12 +98,68 @@ def confirmSignUp(token):
             '''
     return "Server error please try again"
 
+@app.route('/RequestOTP' , methods=['POST' , 'GET'])
+def RequestOTP():
+    error = ""
+    if request.method == 'POST':
+        email = request.form['email']
+        val = (email)
+        query = "SELECT * FROM users WHERE Email = %s"
+        info = conn.executeQueryValData(query, val)
+        if len(info) == 1:
+            otp = generateOTP()
+            sendOTP("OTP" , [email] , otp)
+            query = "INSERT INTO otp(Code, Email,DepartTime) VALUES(%s,%s,%s)"
+            val = (otp,email,int(time()))
+            conn.executeQueryValNonData(query,val)
+            return render_template("Account/ConfirmOTP.html" , msg="Please check your email to get OTP code" , email=email)
+        else:
+            error = "Email does not exists please try again"
+    return render_template("Account/LoginWithOTP.html" , error=error)
+
+@app.route('/LoginOTP', methods=['POST'])
+def LoginOTP():
+    if request.method == 'POST':
+        data = request.json
+        email = data['email']
+        otp = data['otp']
+        query = "SELECT * FROM otp WHERE Code = %s AND Email = %s"
+        val = (otp , email)
+        info = conn.executeQueryValData(query, val)
+        if len(info) == 1:
+            currentTime = int(time())
+            departTime = info[0][3]
+            if currentTime - departTime > 60:
+                query = "DELETE FROM otp WHERE Code = %s AND Email = %s"
+                val = (otp,email)
+                conn.executeQueryValNonData(query , val)
+                return "Sorry OTP code expired, please try again", 10
+            else:
+                session['email'] = email
+                query = "DELETE FROM otp WHERE Email = %s"
+                val = (email)
+                conn.executeQueryValNonData(query , val)
+                return url_for("Home")
+        else:
+            return "Invalid OTP code please try again",10
+    return "File Not Found" , 404
+
 @app.route('/Logout')
 def Logout():
     session.pop('email' , None)
     return redirect(url_for("Login"))
 
 
+
+def sendOTP(subject , recipients, OTP):
+    msg = Message(subject=subject , recipients=recipients)
+    body = '''
+    <h1>Hello</h1>
+    <p>{} is the otp authentication code for your login. </p>
+    <p style="color:red">* This code is valid only for 1 minute.</p>
+    '''
+    msg.html = body.format(OTP)
+    mail.send(msg)
 
 
 def sendEmail(subject , recipients, token):
@@ -121,6 +178,11 @@ def sendEmail(subject , recipients, token):
 
 
 
+def generateOTP():
+    OTP = ""
+    for i in range(0,6):
+        OTP += str(rd.randint(0,9))
+    return OTP
 
 if __name__ == "__main__":
     app.run(debug=True)

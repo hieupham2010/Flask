@@ -7,27 +7,28 @@
     <link rel="stylesheet" href="{{url_for('static' , filename='Stylesheet/LoginStyle.css')}}">
     <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Amatic+SC" />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="{{url_for('static' , filename='Javascript/Javascript.js')}}"></script>
-    <title>Login</title>
+    <script src="{{url_for('static' , filename='Javascript/OTP.js')}}"></script>
+    <title>OTP</title>
 </head>
 
 <body>
     <div class="container">
-        <div class="card-login">
+        <div id="message" style="text-align: center; color: red; font-size: 20px;margin-top: 6%; margin-bottom: 2%;">
+            {{msg}}
+        </div>
+        <div class="card-login" style="margin-top: 0%;">
             <div class="header">
-                <h2>Login</h2>
+                <h2>OTP</h2>
             </div>
             <div class="input">
                 <form id="form-login" role="form">
-                    <input type="email" id="email" name="email" placeholder="Email" required>
-                    <input type="password" id="password" name="password" placeholder="Password" required>
+                    <input type="hidden" name="email" id="email" value="{{email}}">
+                    <input type="text" id="OTP" name="OTP" placeholder="OTP" required>
                     <span id="errorMessage" style="font-size:15px; color:red"></span>
                     <input type="submit" style="cursor: pointer;" id="btnLogin" name="Login" value="Login">
                 </form>
                 <div style="text-align: center;">
-                    <span>Don't have an account?</span> <a href="/Register">Sign Up</a><br>
-                    <a href="/RequestOTP">Login With OTP</a>
-                    <a id="ForgotPassword" href="/ForgotPassword"></a>
+                    <a id="sendOTP" href="/RequestOTP"></a>
                 </div>
             </div>
         </div>
