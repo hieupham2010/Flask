@@ -4,6 +4,7 @@ from flask_mail import Mail, Message
 from config import configEmail
 from time import time
 import random as rd
+import os
 import hashlib
 import connection as conn
 app = Flask(__name__, template_folder="Views")
@@ -16,6 +17,8 @@ app.config['MAIL_USE_TLS'] = False
 app.config['MAIL_USE_SSL'] = True
 app.config['MAIL_DEFAULT_SENDER'] = 'Admin'
 mail = Mail(app)
+UPLOAD_FOLDER = 'static/Uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -143,6 +146,41 @@ def LoginOTP():
         else:
             return "Invalid OTP code please try again",10
     return "File Not Found" , 404
+
+@app.route('/Uploads' , methods=['POST' , 'GET'])
+def Uploads():
+    if request.method == 'POST':
+        email = session['email']
+        path = app.config['UPLOAD_FOLDER'] + '/' + email
+        file = request.files['fileUpload']
+        filename = file.filename
+        if not os.path.exists(path):
+            os.makedirs(path)
+        if filename == '':
+            return "No file attached"
+        else:
+            fileN = str(time()) + filename
+            file.save(os.path.join(path, fileN))
+            query = "SELECT UserID FROM users WHERE Email = %s"
+            val = (email)
+            info = conn.executeQueryValData(query , val)
+            UserID = info[0][0]
+            query = "INSERT INTO uploads(Path , FileName, UserID) VALUES(%s, %s, %s)"
+            val = ( path + '/' + fileN , filename, UserID)
+            conn.executeQueryValNonData(query,val)
+            return "Success"
+    else:
+        if 'email' in session:
+            email = session['email']
+            query = "SELECT UserID FROM users WHERE Email = %s"
+            val = (email)
+            info = conn.executeQueryValData(query , val)
+            UserID = info[0][0]
+            query = "SELECT * FROM uploads WHERE UserID = %s"
+            val = (UserID)
+            info = conn.executeQueryValData(query , val)
+            return render_template('Home/Uploads.html' , data=info)
+
 
 @app.route('/Logout')
 def Logout():

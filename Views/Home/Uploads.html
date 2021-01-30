@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <title>Uploads</title>
+</head>
+
+<body>
+    <div style="text-align: center;">
+        <h1>Your file uploads</h1>
+    </div>
+    {% for i in data%}
+    <div style="display: inline-block; text-align: center; margin-right: 50px;">
+        <a href="{{i[1]}}" download="{{i[2]}}">
+            <i class="fa fa-file-text-o" style="font-size:100px;"></i>
+            <p>{{i[2]}}</p>
+        </a>
+    </div>
+    {% endfor %}
+</body>
+
+</html>
